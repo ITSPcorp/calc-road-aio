@@ -23,8 +23,6 @@ LABEL version="0.1" description="Calc-road AIO Docker container"
 RUN mkdir /home/itsp
 WORKDIR /home/itsp
 
-
-
 # Packaged dependencies
 RUN apt update && apt install -y \
 curl \
@@ -49,7 +47,7 @@ mongodb
 
 RUN pip install --upgrade pip
 
-ADD ./ ./calc-road/
+ADD ./calc-road/ ./calc-road/
 
 WORKDIR /home/itsp/calc-road
 
@@ -60,11 +58,9 @@ RUN service mongodb start && \
 	mongoimport  --db calc_road --collection user --file  database/db-default_user.json && \
 	mongoimport  --db calc_road --collection config --file  database/db-default_config.json
 
-RUN mv local_config.json config.json
+ADD config.json config.json
 
 WORKDIR /home/itsp/calc-road/template
-
-RUN rm -R node_modules/
 
 RUN npm install ./ 
 
@@ -74,6 +70,12 @@ RUN npm install -g bower pm2
 
 RUN bower install --allow-root
 
-CMD node server.js
+WORKDIR /home/itsp/calc-road/
+
+ADD start.sh start.sh
+
+RUN chmod 777 start.sh
+
+CMD /home/itsp/calc-road/start.sh
 
 
