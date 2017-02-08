@@ -1,3 +1,4 @@
 {
-	"mongo_url" : "mongodb://127.0.0.1:27017/calc_road"
+	"mongo_url" : "mongodb://127.0.0.1:27017/calc_road",
+	"IA_url": "tcp://127.0.0.1:4242"
 }

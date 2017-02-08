@@ -1,6 +1,6 @@
 #!/bin/bash
 
-service mongodb start
+mongod --fork --logpath /var/log/mongodb/mongo.log
 
 cd /home/itsp/calc-road/template
 

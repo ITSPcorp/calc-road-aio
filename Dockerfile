@@ -23,6 +23,7 @@ LABEL version="0.1" description="Calc-road AIO Docker container"
 RUN mkdir /home/itsp
 WORKDIR /home/itsp
 
+
 # Packaged dependencies
 RUN apt update && apt install -y \
 curl \
@@ -40,10 +41,14 @@ libzmq-dev \
 
 RUN curl -sL https://deb.nodesource.com/setup_7.x | sudo -E bash -
 
+RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 0C49F3730359A14518585931BC711F9BA15703C6
+RUN echo "deb http://repo.mongodb.org/apt/ubuntu "$(lsb_release -sc)"/mongodb-org/3.4 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-3.4.list
 
 RUN apt update && apt install -y \
 nodejs \
-mongodb
+mongodb-org
+
+RUN mkdir -p /data/db
 
 RUN pip install --upgrade pip
 
@@ -53,12 +58,18 @@ WORKDIR /home/itsp/calc-road
 
 RUN pip install -r import_IA/requierements.pip 
 
-RUN service mongodb start && \
+ADD indexes.js database/indexes.js
+
+RUN mongod --fork --logpath /var/log/mongodb/mongo.log && \
 	sleep 60 && \
 	mongoimport  --db calc_road --collection user --file  database/db-default_user.json && \
-	mongoimport  --db calc_road --collection config --file  database/db-default_config.json
+	mongoimport  --db calc_road --collection config --file  database/db-default_config.json && \
+	mongo database/indexes.js
 
-ADD config.json config.json
+ADD config.json template/config.json
+ADD config.json import_IA/config.json
+
+
 
 WORKDIR /home/itsp/calc-road/template
 
